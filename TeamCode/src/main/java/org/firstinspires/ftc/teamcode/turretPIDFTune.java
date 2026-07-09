@@ -15,11 +15,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Config
 class TuningConfig {
-    public static double P = 5.0;
+    public static double P = 10.0;
     public static double I = 0.0;
     public static double D = 0.0;
     public static double F = 40;
-    public static double Velocity_deg_per_sec = 200;
+    public static double Velocity_deg_per_sec = 150;
     public static double intakeMotorPower = 0.8;
     public static double indexerMotorPower = 0.8;
     public static double indexerReverseMotorPower = 0.8;
@@ -30,7 +30,7 @@ public class turretPIDFTune extends LinearOpMode {
 
     private final FtcDashboard dash = FtcDashboard.getInstance();
 
-    private boolean lastButtonState = false; // Used for "button debouncing"
+    private boolean lastButtonState = false;
     private double targetDegrees = 0.0;
 
     private boolean enableIntake = false;
@@ -51,15 +51,13 @@ public class turretPIDFTune extends LinearOpMode {
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftShooter.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftShooter.setDirection(DcMotorSimple.Direction.FORWARD);   // Check if the direction is correct
         rightShooter.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         indexerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
         
         telemetry.addData("Status", "Initialized. Press Play.");
         telemetry.update();
-
         waitForStart();
 
         // Main TeleOp Loop
@@ -86,15 +84,10 @@ public class turretPIDFTune extends LinearOpMode {
 
             // Indexer Forward/Reverse/Stop button handling
             if (gamepad1.dpad_up) { // Forward
-                enableIndexer = true;
-                reverseIndexer = false;
+                indexerMotor.setPower(TuningConfig.indexerMotorPower);
             } else if (gamepad1.dpad_down) { // Reverse
-                enableIndexer = false;
-                reverseIndexer = true;
-            } else if (gamepad1.dpad_right) { // Stop
-                enableIndexer = false;
-                reverseIndexer = false;
-            }
+                indexerMotor.setPower(0);
+            } 
 
             // Intake logic only controls intakeMotor
             if (enableIntake) {
@@ -103,20 +96,10 @@ public class turretPIDFTune extends LinearOpMode {
                 intakeMotor.setPower(0);
             }
 
-            // Indexer logic only controls indexerMotor
-            if (enableIndexer) {
-                indexerMotor.setPower(TuningConfig.indexerMotorPower);
-            } else if (reverseIndexer) {
-                indexerMotor.setPower(-TuningConfig.indexerReverseMotorPower);
-            } else {
-                indexerMotor.setPower(0);
-            }
-
             telemetry.addData("shooter_target_velocity", TuningConfig.Velocity_deg_per_sec);
             telemetry.addData("left shooter current deg per sec", leftShooter.getVelocity(AngleUnit.DEGREES));
             telemetry.addData("right shooter current deg per sec", rightShooter.getVelocity(AngleUnit.DEGREES));
-            telemetry.addData("left_shooter_pidf", leftShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
-            telemetry.addData("right_shooter_pidf", rightShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+            telemetry.addData("PIDF_values", leftShooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
             
             telemetry.update();
         }
