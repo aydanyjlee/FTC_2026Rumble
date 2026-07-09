@@ -15,10 +15,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Config
 class TuningConfig {
-    public static double P = 1.0;
+    public static double P = 5.0;
     public static double I = 0.0;
     public static double D = 0.0;
-    public static double F = 10;
+    public static double F = 40;
     public static double Velocity_deg_per_sec = 200;
     public static double intakeMotorPower = 0.8;
     public static double indexerMotorPower = 0.8;
@@ -35,17 +35,18 @@ public class turretPIDFTune extends LinearOpMode {
 
     private boolean enableIntake = false;
     private boolean enableIndexer = false;
+    private boolean reverseIndexer = false;
 
     @Override
     public void runOpMode() {
         MultipleTelemetry telemetry = new MultipleTelemetry(this.telemetry, dash.getTelemetry());
 
 //      get motors
-        DcMotorEx leftShooter = hardwareMap.get(DcMotorEx.class, "shooterL");
-        DcMotorEx rightShooter = hardwareMap.get(DcMotorEx.class, "shooterR");
-        DcMotorEx intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
-        DcMotorEx indexerMotor = hardwareMap.get(DcMotorEx.class, "indexer");
-
+        DcMotorEx leftShooter = hardwareMap.get(DcMotorEx.class, "shooterL");  // Rename this to match your configuration
+        DcMotorEx rightShooter = hardwareMap.get(DcMotorEx.class, "shooterR"); //
+        DcMotorEx intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");    //
+        DcMotorEx indexerMotor = hardwareMap.get(DcMotorEx.class, "indexer");  //
+ 
 //      Run using encoder
         leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
